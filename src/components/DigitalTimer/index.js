@@ -1,128 +1,182 @@
-// Write your code here
-import { Component } from "react";
+import {Component} from 'react'
+
 import './index.css'
 
-const initialTimeLimit = 25
+const initialState = {
+  isTimerRunning: false,
+  timeElapsedInSeconds: 0,
+  timerLimitInMinutes: 25,
+}
 
 class DigitalTimer extends Component {
-    state ={
-        timeLimit: initialTimeLimit,
-        seconds: initialTimeLimit * 60,
-        isTimerRunning: false,
-        isIncrementDecrementVisble: true
+  state = initialState
+
+  componentWillUnmount() {
+    this.clearTimerInterval()
+  }
+
+  clearTimerInterval = () => clearInterval(this.intervalId)
+
+  onDecreaseTimerLimitInMinutes = () => {
+    const {timerLimitInMinutes} = this.state
+
+    if (timerLimitInMinutes > 1) {
+      this.setState(prevState => ({
+        timerLimitInMinutes: prevState.timerLimitInMinutes - 1,
+      }))
     }
+  }
 
-    getTime = () => {
-        const {seconds} = this.state
-        const minute = parseInt(seconds / 60) < 10 ? '0' + parseInt(seconds / 60) : parseInt(seconds / 60)
-        const rem = parseInt(seconds % 60) < 10 ? '0' + parseInt(seconds % 60) : parseInt(seconds % 60)
-        return `${minute}:${rem}`
+  onIncreaseTimerLimitInMinutes = () =>
+    this.setState(prevState => ({
+      timerLimitInMinutes: prevState.timerLimitInMinutes + 1,
+    }))
+
+  renderTimerLimitController = () => {
+    const {timerLimitInMinutes, timeElapsedInSeconds} = this.state
+    const isButtonsDisabled = timeElapsedInSeconds > 0
+
+    return (
+      <div className="timer-limit-controller-container">
+        <p className="limit-label">Set Timer limit</p>
+        <div className="timer-limit-controller">
+          <button
+            className="limit-controller-button"
+            disabled={isButtonsDisabled}
+            onClick={this.onDecreaseTimerLimitInMinutes}
+            type="button"
+          >
+            -
+          </button>
+          <div className="limit-label-and-value-container">
+            <p className="limit-value">{timerLimitInMinutes}</p>
+          </div>
+          <button
+            className="limit-controller-button"
+            disabled={isButtonsDisabled}
+            onClick={this.onIncreaseTimerLimitInMinutes}
+            type="button"
+          >
+            +
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  onResetTimer = () => {
+    this.clearTimerInterval()
+    this.setState(initialState)
+  }
+
+  incrementTimeElapsedInSeconds = () => {
+    const {timerLimitInMinutes, timeElapsedInSeconds} = this.state
+    const isTimerCompleted = timeElapsedInSeconds === timerLimitInMinutes * 60
+
+    if (isTimerCompleted) {
+      this.clearTimerInterval()
+      this.setState({isTimerRunning: false})
+    } else {
+      this.setState(prevState => ({
+        timeElapsedInSeconds: prevState.timeElapsedInSeconds + 1,
+      }))
     }
+  }
 
-    tick = () => {
-        const {seconds} = this.state
-        if(seconds > 0) {
-            if(seconds === 1) {
-                this.toggleIsTimerRunning()    
-            }
-            this.setState(prevState => ({seconds: prevState.seconds - 1}))
-        } else {
-            this.toggleIsTimerRunning()
-        }
+  onStartOrPauseTimer = () => {
+    const {
+      isTimerRunning,
+      timeElapsedInSeconds,
+      timerLimitInMinutes,
+    } = this.state
+    const isTimerCompleted = timeElapsedInSeconds === timerLimitInMinutes * 60
+
+    if (isTimerCompleted) {
+      this.setState({timeElapsedInSeconds: 0})
     }
-
-    startTimer = () => {
-        this.timerId = setInterval(this.tick, 1000)
+    if (isTimerRunning) {
+      this.clearTimerInterval()
+    } else {
+      this.intervalId = setInterval(this.incrementTimeElapsedInSeconds, 1000)
     }
+    this.setState(prevState => ({isTimerRunning: !prevState.isTimerRunning}))
+  }
 
+  renderTimerController = () => {
+    const {isTimerRunning} = this.state
+    const startOrPauseImageUrl = isTimerRunning
+      ? 'https://assets.ccbp.in/frontend/react-js/pause-icon-img.png'
+      : 'https://assets.ccbp.in/frontend/react-js/play-icon-img.png'
+    const startOrPauseAltText = isTimerRunning ? 'pause icon' : 'play icon'
 
-    toggleIsTimerRunning = () => {
-        const {seconds} = this.state
-        if(seconds === 0 ) return;
+    return (
+      <div className="timer-controller-container">
+        <button
+          className="timer-controller-btn"
+          onClick={this.onStartOrPauseTimer}
+          type="button"
+        >
+          <img
+            alt={startOrPauseAltText}
+            className="timer-controller-icon"
+            src={startOrPauseImageUrl}
+          />
+          <p className="timer-controller-label">
+            {isTimerRunning ? 'Pause' : 'Start'}
+          </p>
+        </button>
+        <button
+          className="timer-controller-btn"
+          onClick={this.onResetTimer}
+          type="button"
+        >
+          <img
+            alt="reset icon"
+            className="timer-controller-icon"
+            src="https://assets.ccbp.in/frontend/react-js/reset-icon-img.png"
+          />
+          <p className="timer-controller-label">Reset</p>
+        </button>
+      </div>
+    )
+  }
 
-        this.setState(prevState => {
-            if(!prevState.isTimerRunning) {
-                this.startTimer()
-            } else {
-                clearInterval(this.timerId)
-            }
-            return {isTimerRunning: !prevState.isTimerRunning, isIncrementDecrementVisble: false}
-        })
-    }
+  getElapsedSecondsInTimeFormat = () => {
+    const {timerLimitInMinutes, timeElapsedInSeconds} = this.state
+    const totalRemainingSeconds =
+      timerLimitInMinutes * 60 - timeElapsedInSeconds
+    const minutes = Math.floor(totalRemainingSeconds / 60)
+    const seconds = Math.floor(totalRemainingSeconds % 60)
+    const stringifiedMinutes = minutes > 9 ? minutes : `0${minutes}`
+    const stringifiedSeconds = seconds > 9 ? seconds : `0${seconds}`
 
-    onIncreamentTimeLimit = () => {
-        this.setState(prevState => ({
-            timeLimit: prevState.timeLimit + 1,
-            seconds: (prevState.timeLimit + 1) * 60
-        }))
-    }
+    return `${stringifiedMinutes}:${stringifiedSeconds}`
+  }
 
-    ondecreamentTimeLimit = () => {
-        this.setState(prevState => ({
-            timeLimit: prevState.timeLimit - 1,
-            seconds: (prevState.timeLimit - 1) * 60
-        }))
-    }
+  render() {
+    const {isTimerRunning} = this.state
+    const labelText = isTimerRunning ? 'Running' : 'Paused'
 
-    onReset = () => {
-        clearInterval(this.timerId);
-
-        this.setState(prevState => ({
-            isTimerRunning: false,
-            timeLimit: initialTimeLimit,
-            seconds: initialTimeLimit * 60,
-            isIncrementDecrementVisble: true
-        }))
-    }
-
-    render() {
-        const {timeLimit, isTimerRunning, isIncrementDecrementVisble} = this.state
-        return (
-            <div className="app-container">
-                <h1 className="main-heading">Digital Timer</h1>
-                <div className="digital-timer-container">
-                    <div className="timer-bg">
-                        <div className="timer-container">
-                            <h1 className="timer">{this.getTime()}</h1>
-                            <p className="timer-status">{isTimerRunning ? 'Running' : 'Paused'}</p>
-                        </div>
-                    </div>
-                    <div className="controller-container">
-                        <div className="start-pause-reset">
-                            <div className="btn-container">
-                                    <img alt={isTimerRunning? 'pause icon' : 'play icon'} src={`https://assets.ccbp.in/frontend/react-js/${isTimerRunning? 'pause' : 'play'}-icon-img.png`} className="icon"/>
-                                <button className="btn btn-text" onClick={this.toggleIsTimerRunning}>
-                                    {isTimerRunning ? 'Pause' : 'Start'}
-                                </button>
-                                {/* <p className="btn-text">{isTimerRunning ? 'Pause' : 'Start'}</p> */}
-                            </div>
-                            <div className="btn-container">
-                                    <img alt="reset icon" src="https://assets.ccbp.in/frontend/react-js/reset-icon-img.png" className="icon"/>
-                                <button className="btn btn-text" onClick={this.onReset}>
-                                    Reset
-                                </button>
-                                {/* <p className="btn-text">Reset</p> */}
-                            </div>
-                        </div>
-                        <div className="set-timer-limit-container">
-                            <p>Set Timer limit</p>
-                            <div className="set-timer-limit-controller">
-                                <button onClick={this.ondecreamentTimeLimit} disabled={!isIncrementDecrementVisble}>
-                                    -
-                                </button>
-                                <p>
-                                    {timeLimit}
-                                </p>
-                                <button onClick={this.onIncreamentTimeLimit} disabled={!isIncrementDecrementVisble}>
-                                    +
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+    return (
+      <div className="app-container">
+        <h1 className="heading">Digital Timer</h1>
+        <div className="digital-timer-container">
+          <div className="timer-display-container">
+            <div className="elapsed-time-container">
+              <h1 className="elapsed-time">
+                {this.getElapsedSecondsInTimeFormat()}
+              </h1>
+              <p className="timer-state">{labelText}</p>
             </div>
-        )
-    }
+          </div>
+          <div className="controls-container">
+            {this.renderTimerController()}
+            {this.renderTimerLimitController()}
+          </div>
+        </div>
+      </div>
+    )
+  }
 }
 
 export default DigitalTimer
