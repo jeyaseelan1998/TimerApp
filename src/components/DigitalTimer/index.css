@@ -1,1 +1,147 @@
 /* Write your CSS here */
+.app-container {
+    height: 100vh;
+    background-image: linear-gradient(to left, #defafe, #cffcf1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.main-heading {
+    font-family: Roboto;
+    font-size: 45px;
+    font-weight: 600;
+}
+
+.digital-timer-container {
+    align-self: stretch;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@media screen and (max-width: 767px) {
+    .digital-timer-container {
+        flex-direction: column;
+    }
+}
+
+.timer-bg {
+    background-image: url('https://assets.ccbp.in/frontend/react-js/digital-timer-elapsed-bg.png');
+    background-size: cover;
+    background-position-x: -25px;
+    height: 500px;
+    width: 80%;
+    max-width: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+@media screen and (max-width: 767px) {
+    .timer-bg {
+        height: 400px;
+    }
+}
+
+.timer-container {
+    background-color: #fff;
+    border-radius: 150px;
+    height: 150px;
+    width: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.timer {
+    margin: 0;
+    font-family: Roboto;
+    font-size: 32px;
+    font-weight: 700;
+    color: #00d9f5;
+}
+
+.timer-status {
+    margin: 0;
+    font-family: Roboto;
+    font-size: 18px;
+    font-weight: 500;
+    margin-top: 10px;
+}
+
+.start-pause-reset, .btn-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon {
+    width: 25px;
+    margin-right: 5px;
+}
+
+.btn {
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-container:hover {
+    background-color: #00000010;
+    border-radius: 8px;
+}
+
+.btn-text {
+    margin: 0;
+    font-family: Roboto;
+    font-size: 28px;
+    font-weight: 500;
+    margin-bottom: 5px;
+    margin-right: 25px;
+    width: 80px;
+}
+
+.set-timer-limit-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.set-timer-limit-container p {
+    font-family: Roboto;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.set-timer-limit-container div {
+    display: flex;
+    align-items: center;
+}
+
+.set-timer-limit-container div button {
+    border: none;
+    padding: 12px 24px;
+    margin: 5px; 
+    background-color: transparent;
+    font-size: 28px;
+    font-family: Roboto;
+    font-weight: 600;  
+    cursor: pointer;
+}
+
+.set-timer-limit-container div button:hover {
+    background-color: #00000010;
+    border-radius: 8px;
+}
+.set-timer-limit-container div p {
+    text-align: center;
+    min-width: 90px;
+    padding: 12px 0;
+    font-family: Roboto;
+    font-size: 24px;
+    font-weight: 700;
+    border-radius: 8px;
+    background-image: linear-gradient(to right, #12ffaf, #00d9f550);
+}
